@@ -50,8 +50,8 @@ func Run(args []string) {
 	for _, path := range paths {
 		if parsedFlags.Recursive {
 			ProcessPath(path)
-		} else {
-
+		} else {	
+			ListOneLevel(path)
 		}
 	}
 
