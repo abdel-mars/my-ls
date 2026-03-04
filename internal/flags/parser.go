@@ -7,6 +7,8 @@ import "strings"
 type Flags struct {
     Recursive bool
 	All bool
+	Reverse bool
+	TimeSort bool
 }
 
 func Parse(args []string) (Flags, []string) {
@@ -26,6 +28,10 @@ func Parse(args []string) (Flags, []string) {
 					flags.Recursive = true
 				case 'a':
 					flags.All = true
+				case 'r':
+					flags.Reverse = true
+				case 't':
+					flags.TimeSort = true
 				}
 			}
 		} else {
