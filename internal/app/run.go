@@ -2,42 +2,43 @@ package app
 
 import (
 	"fmt"
-	// "strings"
 	"strings"
 	flagpkg "my-ls/internal/flags"
-	// "log"
-	// "my-ls/internal/flags"
 	"os"
 	"path/filepath"
+	"my-ls/internal/sorter"
 )
 
 
 func ProcessPath(path string, flags flagpkg.Flags) {
-
 	entries, err := os.ReadDir(path)
 	if err != nil {
-		fmt.Println("my-ls" , err) 
-		return;
+		fmt.Println("my-ls", err)
+		return
 	}
-	fmt.Println(path + ":" )
-	for _, entry := range entries {
-		if !flags.All && strings.HasPrefix(entry.Name(), ".") {
-			continue
+
+	filtered := []os.DirEntry{}
+	for _, e := range entries {
+		if flags.All || !strings.HasPrefix(e.Name(), ".") {
+			filtered = append(filtered, e)
 		}
+	}
+
+	filtered = sorter.SortEntries(filtered, flags)
+
+	fmt.Println(path + ":")
+	for _, entry := range filtered {
 		fmt.Println(entry.Name())
 	}
-	for _, entry := range entries {
-		if !flags.All && strings.HasPrefix(entry.Name(), ".") {
-			continue
-		}
 
+	// Recurse into subdirectories
+	for _, entry := range filtered {
 		if entry.IsDir() {
-		ProcessPath(filepath.Join(path, entry.Name()), flags)
+			ProcessPath(filepath.Join(path, entry.Name()), flags)
 		}
 	}
-	
-
 }
+
 
 func ListOneLevel(path string, flags flagpkg.Flags) {
 	entries, err := os.ReadDir(path)
@@ -46,11 +47,16 @@ func ListOneLevel(path string, flags flagpkg.Flags) {
 		return
 	}
 
-	for _, entry := range entries {
-		if !flags.All && strings.HasPrefix(entry.Name(), ".") {
-			continue
+	filtered := []os.DirEntry{}
+	for _, e := range entries {
+		if flags.All || !strings.HasPrefix(e.Name(), ".") {
+			filtered = append(filtered, e)
 		}
+	}
 
+	filtered = sorter.SortEntries(filtered, flags)
+
+	for _, entry := range filtered {
 		fmt.Println(entry.Name())
 	}
 }
@@ -71,10 +77,3 @@ func Run(args []string) {
 	}
 
 }
-
-
-// Parse flags
-// If no paths → default to "."
-// If Recursive → use ProcessPath
-// Else → only list one level (no recursion)
-
