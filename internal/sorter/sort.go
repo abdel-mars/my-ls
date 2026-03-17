@@ -5,7 +5,6 @@ import (
 	flagpkg "my-ls/internal/flags"
 )
 
-
 func BubbleSort(entries []fs.DirEntry, flags flagpkg.Flags) {
 	n := len(entries)
 
@@ -32,13 +31,27 @@ func BubbleSort(entries []fs.DirEntry, flags flagpkg.Flags) {
 
 			} else {
 				// Alphabetical
-				if flags.Reverse {
-					if entries[j].Name() < entries[j+1].Name() {
-						swap = true
+				nameJ := entries[j].Name()
+				nameJ1 := entries[j+1].Name()
+
+				rankJ := dotRank(nameJ, flags.All)
+				rankJ1 := dotRank(nameJ1, flags.All)
+
+				if rankJ != rankJ1 {
+					if flags.Reverse {
+						swap = rankJ < rankJ1
+					} else {
+						swap = rankJ > rankJ1
 					}
 				} else {
-					if entries[j].Name() > entries[j+1].Name() {
-						swap = true
+					if flags.Reverse {
+						if nameJ < nameJ1 {
+							swap = true
+						}
+					} else {
+						if nameJ > nameJ1 {
+							swap = true
+						}
 					}
 				}
 			}
@@ -55,3 +68,15 @@ func SortEntries(entries []fs.DirEntry, flags flagpkg.Flags) []fs.DirEntry {
 	return entries
 }
 
+func dotRank(name string, includeDots bool) int {
+	if !includeDots {
+		return 0
+	}
+	if name == "." {
+		return 0
+	}
+	if name == ".." {
+		return 1
+	}
+	return 2
+}
