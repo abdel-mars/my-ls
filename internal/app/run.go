@@ -2,33 +2,27 @@ package app
 
 import (
 	"fmt"
-	"strings"
+	"my-ls/internal/filesystem"
 	flagpkg "my-ls/internal/flags"
-	"os"
-	"path/filepath"
+	"my-ls/internal/formatter"
 	"my-ls/internal/sorter"
+	// "os"
+	"path/filepath"
 )
 
-
 func ProcessPath(path string, flags flagpkg.Flags) {
-	entries, err := os.ReadDir(path)
+	entries, err := filesystem.ReadDirFiltered(path, flags)
 	if err != nil {
 		fmt.Println("my-ls", err)
 		return
 	}
-
-	filtered := []os.DirEntry{}
-	for _, e := range entries {
-		if flags.All || !strings.HasPrefix(e.Name(), ".") {
-			filtered = append(filtered, e)
-		}
-	}
-
-	filtered = sorter.SortEntries(filtered, flags)
+	filtered := sorter.SortEntries(entries, flags)
 
 	fmt.Println(path + ":")
-	for _, entry := range filtered {
-		fmt.Println(entry.Name())
+	if flags.Long {
+		formatter.PrintLong(filtered, path)
+	} else {
+		formatter.PrintBasic(filtered)
 	}
 
 	// Recurse into subdirectories
@@ -39,25 +33,18 @@ func ProcessPath(path string, flags flagpkg.Flags) {
 	}
 }
 
-
 func ListOneLevel(path string, flags flagpkg.Flags) {
-	entries, err := os.ReadDir(path)
+	entries, err := filesystem.ReadDirFiltered(path, flags)
 	if err != nil {
 		fmt.Println("my-ls", err)
 		return
 	}
+	filtered := sorter.SortEntries(entries, flags)
 
-	filtered := []os.DirEntry{}
-	for _, e := range entries {
-		if flags.All || !strings.HasPrefix(e.Name(), ".") {
-			filtered = append(filtered, e)
-		}
-	}
-
-	filtered = sorter.SortEntries(filtered, flags)
-
-	for _, entry := range filtered {
-		fmt.Println(entry.Name())
+	if flags.Long {
+		formatter.PrintLong(filtered, path)
+	} else {
+		formatter.PrintBasic(filtered)
 	}
 }
 
