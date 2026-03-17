@@ -3,12 +3,12 @@ package flags
 // import "fmt"
 import "strings"
 
-
 type Flags struct {
-    Recursive bool
-	All bool
-	Reverse bool
-	TimeSort bool
+	Recursive bool
+	All       bool
+	Reverse   bool
+	TimeSort  bool
+	Long      bool
 }
 
 func Parse(args []string) (Flags, []string) {
@@ -32,12 +32,13 @@ func Parse(args []string) (Flags, []string) {
 					flags.Reverse = true
 				case 't':
 					flags.TimeSort = true
+				case 'l':
+					flags.Long = true
 				}
 			}
 		} else {
 			paths = append(paths, arg)
 		}
+	}
+	return flags, paths
 }
-return flags, paths
-}
-
